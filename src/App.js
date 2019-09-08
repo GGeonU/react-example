@@ -1,30 +1,121 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import './App.css';
-import Book from "./Book";
 import MyBookList from "./MyBookList";
 import axios from "axios";
 import {MdSearch} from 'react-icons/md'
-import Thumbnail from "./Thumbnail";
 import Info from "./Info";
+import styled from "styled-components";
+
+const Section = styled.section`
+    height: 100%;
+    display: block;
+    justify-content: center;
+   
+`;
+
+const SelectBox = styled.select`
+    width: min-content;
+`
+
+const SearchResult = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding: 70px 50px 50px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 80%;
+    overflow-scrolling: auto;
+    overflow: auto;
+`;
+
+const SearchInput = styled.input`
+    background: white none;
+    outline: none;
+    border: none;
+    padding: 0.5rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: black;
+    flex: 1;
+`;
+
+const SearchButton = styled.button`
+    background: #868e96 none;
+    outline: none;
+    border: none;
+    color: white;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: 0.1s background ease-in;
+`;
+
+const SelectDiv = styled.div`
+    width: 768px;
+    margin-top: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+`;
+
+const SearchTab = styled.div`
+    width: 768px;
+    max-width: 768px;
+    height: 10%;
+    display: flex;
+    margin-top: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+`;
+
+const BookList = styled.div`
+    width: 47%;
+    height: 250px ;
+    background-color: white;
+    margin-bottom: 70px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    overflow-scrolling: inherit;
+    font-weight: 300;
+    padding: 20px;
+    border-radius: 5px;
+    color: #adaeb9;
+    cursor: pointer;
+    box-shadow: 0 13px 27px -5px rgba(50, 50, 93, 0.25), 0 8px 16px -8px rgba(0, 0, 0, 0.3), 0 -6px 16px -6px rgba(0, 0, 0, 0.025);
+  
+`;
+
+const Search = styled.div`
+    margin-left: auto;
+    margin-right: auto;
+`;
+
 
 const App = () => {
     const [optionType, setOptionType] = useState('Search');
+    const [loading, setLoading] = useState(true);
     const [book, setBook] = useState([]);
     const [query, setQuery] = useState('');
+    const [myBook, setMyBook] = useState([]);
 
     const onChangeOption = (e) => {
         setOptionType(e.target.value)
     };
 
     const updateBookList = (bookData) => {
-        console.log(...bookData);
-        setBook(bookData)
+        setBook(bookData.map(it => ({...it, isMyBook: false})));
+        setLoading(false);
     };
 
     const base = axios.create({
         baseURL: "https://dapi.kakao.com",
         headers: {
-            Authorization: "KakaoAK b4295efaba583c2e769b0b13490102af"
+            Authorization: "KakaoAK b4295efaba583c2e769b0b13490102af",
         }
     });
 
@@ -40,35 +131,50 @@ const App = () => {
     const onClickSearchButton = async () => {
         const params = {
             query: query,
+            size: 10
         };
         const response = await bookSearch(params);
         await updateBookList(response.documents);
     };
 
-    return (
-        <div className='selectBox'>
-            <select onChange={onChangeOption}>
-                <option value='Search'>Search</option>
-                <option value='MyList'>MyList</option>
-            </select>
-            <div className='contents'>
-                {optionType === 'Search' ?
-                    <Book book={book} updateBookList={updateBookList}/>
-                    : <MyBookList book={book}/>}
-            </div>
+    const onBookListClicked = (e) => {
+        e.stopPropagation();
+        console.log(e.target.id);
+        let index = book.findIndex(it => it.isbn === e.target.id);
+        setBook(book, {
+            ...book[index].isMyBook = true
+        });
+        setMyBook(myBook.concat(book[index]));
+        alert("추가되었습니다");
+    };
 
-            <div className="searchBox">
-                <input type="text" onChange={queryChange} value={query} placeholder="검색(제목, 저자, 출판사)"/>
-                <button className="searchButton" onClick={onClickSearchButton}><MdSearch/></button>
-            </div>
-            <div>
-                {(book.map((it, index) =>
-                    <div className="ListItem" key={index}>
-                        <Thumbnail thumbnail={it.thumbnail}/>
-                        <Info title={it.title} author={it.authors}/>
-                    </div>))}
-            </div>
-        </div>
+    return (
+        <Section>
+            <SelectDiv>
+                <SelectBox onChange={onChangeOption}>
+                    <option value='Search'>Search</option>
+                    <option value='MyList'>MyList</option>
+                </SelectBox>
+            </SelectDiv>
+
+            {optionType === 'Search' ?
+                <Search>
+                    <SearchTab>
+                        <SearchInput type="text" onChange={queryChange} value={query}
+                                     placeholder="검색(제목, 저자, 출판사)"/>
+                        <SearchButton className="searchButton"
+                                      onClick={onClickSearchButton}><MdSearch/></SearchButton>
+                    </SearchTab>
+                    <SearchResult>
+                        {(book.map((it, index) =>
+                            <BookList id={it.isbn} onClick={onBookListClicked} key={index}>
+                                <Info thumbnail={it.thumbnail} title={it.title} author={it.authors}
+                                      is={it.isMyBook}/>
+                            </BookList>))}
+                    </SearchResult>
+                </Search>
+                : myBook.map(it => <MyBookList key={it.isbn} title={it.title}/>)}
+        </Section>
 
     )
 };
