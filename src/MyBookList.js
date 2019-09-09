@@ -8,24 +8,30 @@ const Thumbnail = styled.img`
     display: flex;
 `;
 
-
 const ItemBox = styled.div`
     display: flex;
+`;
+
+const BookContents = styled.p`
+    margin: 0;
+    font-weight: 250;
+    min-width: 250px;
 `;
 
 const MyBookList = (props) => {
     console.log(props);
 
-    const {title} = props;
+    const {thumbnail, title, author, contents} = props; // 비구조화 할당
 
     return(
         <ItemBox>
             <div>
-                <Thumbnail src={props.thumbnail} alt="Not Image"/>
+                <Thumbnail src={thumbnail} alt="Not Image"/>
             </div>
             <div>
                 <h3>{title}</h3>
-                {/*<p>{props.author}</p>*/}
+                <p>{author}</p>
+                <BookContents>{contents}</BookContents>
             </div>
         </ItemBox>
     )

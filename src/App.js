@@ -15,7 +15,7 @@ const Section = styled.section`
 
 const SelectBox = styled.select`
     width: min-content;
-`
+`;
 
 const SearchResult = styled.div`
     display: flex;
@@ -25,7 +25,7 @@ const SearchResult = styled.div`
     padding: 70px 50px 50px;
     margin-left: auto;
     margin-right: auto;
-    width: 80%;
+    width: 90%;
     overflow-scrolling: auto;
     overflow: auto;
 `;
@@ -54,6 +54,8 @@ const SearchButton = styled.button`
     cursor: pointer;
     transition: 0.1s background ease-in;
 `;
+
+
 
 const SelectDiv = styled.div`
     width: 768px;
@@ -98,18 +100,16 @@ const Search = styled.div`
 
 const App = () => {
     const [optionType, setOptionType] = useState('Search');
-    const [loading, setLoading] = useState(true);
     const [book, setBook] = useState([]);
     const [query, setQuery] = useState('');
     const [myBook, setMyBook] = useState([]);
 
-    const onChangeOption = (e) => {
-        setOptionType(e.target.value)
-    };
+    const onChangeOption = useCallback((e) => {
+        setOptionType(e.target.value);
+    }, []);
 
     const updateBookList = (bookData) => {
         setBook(bookData.map(it => ({...it, isMyBook: false})));
-        setLoading(false);
     };
 
     const base = axios.create({
@@ -119,9 +119,9 @@ const App = () => {
         }
     });
 
-    const queryChange = (e) => {
+    const queryChange = useCallback((e) => {
         setQuery(e.target.value)
-    };
+    }, []);
 
     const bookSearch = (params) => {
         return base.get("/v3/search/book", {params})
@@ -137,15 +137,23 @@ const App = () => {
         await updateBookList(response.documents);
     };
 
-    const onBookListClicked = (e) => {
-        e.stopPropagation();
-        console.log(e.target.id);
+    const onClickBookList = (e) => {
         let index = book.findIndex(it => it.isbn === e.target.id);
-        setBook(book, {
-            ...book[index].isMyBook = true
-        });
+        console.log(index);
+        // book[index].isMyBook = true;
         setMyBook(myBook.concat(book[index]));
         alert("추가되었습니다");
+    };
+
+    useEffect(() => {
+        console.log("change");
+    }, [book]);
+
+    const aaa = () => {
+        let buf = myBook.filter(book => book.isMyBook === true);
+        console.log(buf);
+        setMyBook(myBook.concat(buf));
+        console.log(myBook);
     };
 
     return (
@@ -167,13 +175,14 @@ const App = () => {
                     </SearchTab>
                     <SearchResult>
                         {(book.map((it, index) =>
-                            <BookList id={it.isbn} onClick={onBookListClicked} key={index}>
-                                <Info thumbnail={it.thumbnail} title={it.title} author={it.authors}
-                                      is={it.isMyBook}/>
+                            <BookList id={it.isbn} onClick={onClickBookList} key={index}>
+                                <Info thumbnail={it.thumbnail} title={it.title} author={it.authors} publisher={it.publisher}/>
                             </BookList>))}
                     </SearchResult>
                 </Search>
-                : myBook.map(it => <MyBookList key={it.isbn} title={it.title}/>)}
+
+                : myBook.map(it => <MyBookList key={it.isbn} thumbnail={it.thumbnail} title={it.title}
+                                               author={it.authors} contents={it.contents}/>)}
         </Section>
 
     )
