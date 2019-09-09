@@ -55,6 +55,11 @@ const SearchButton = styled.button`
     transition: 0.1s background ease-in;
 `;
 
+const AddButton = styled.button`
+    height: min-content;
+    margin-top: auto;
+    margin-bottom: 0;
+`
 
 
 const SelectDiv = styled.div`
@@ -128,7 +133,7 @@ const App = () => {
             .then(it => it.data)
     };
 
-    const onClickSearchButton = async () => {
+    const onClickSearchButton = async () => { // 비동기 처리
         const params = {
             query: query,
             size: 10
@@ -143,17 +148,6 @@ const App = () => {
         // book[index].isMyBook = true;
         setMyBook(myBook.concat(book[index]));
         alert("추가되었습니다");
-    };
-
-    useEffect(() => {
-        console.log("change");
-    }, [book]);
-
-    const aaa = () => {
-        let buf = myBook.filter(book => book.isMyBook === true);
-        console.log(buf);
-        setMyBook(myBook.concat(buf));
-        console.log(myBook);
     };
 
     return (
@@ -175,14 +169,15 @@ const App = () => {
                     </SearchTab>
                     <SearchResult>
                         {(book.map((it, index) =>
-                            <BookList id={it.isbn} onClick={onClickBookList} key={index}>
-                                <Info thumbnail={it.thumbnail} title={it.title} author={it.authors} publisher={it.publisher}/>
+                            <BookList key={index}>
+                                <Info thumbnail={it.thumbnail} title={it.title} author={it.authors}
+                                      publisher={it.publisher}/>
+                                <AddButton id={it.isbn} onClick={onClickBookList}>add List</AddButton>
                             </BookList>))}
                     </SearchResult>
                 </Search>
-
                 : myBook.map(it => <MyBookList key={it.isbn} thumbnail={it.thumbnail} title={it.title}
-                                               author={it.authors} contents={it.contents}/>)}
+                                             author={it.authors} contents={it.contents}/>)}
         </Section>
 
     )
