@@ -55,7 +55,7 @@ const MyBookList = ({myBook, action}) => {
     useEffect(() => {
         setMyBookItems(myBook);
         console.log(myBook)
-    }, [myBook]); // 시작 될 때만 렌더링
+    }, [myBook]); // myBook이 변할 때만
 
     const onDeleteButtonClick = (e) => {
         action(e.target.id); // id 받아 비교해 삭제

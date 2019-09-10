@@ -52,8 +52,6 @@ const BookContents = styled.p`
 
 const Info = (props) => {
     const {thumbnail, title, author, publisher} = props;
-
-
     return (
         <ItemBox >
             <div>

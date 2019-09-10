@@ -97,13 +97,13 @@ const BookList = styled.div`
   
 `;
 
-const Search = styled.div`
+const SearchDiv = styled.div`
     margin-left: auto;
     margin-right: auto;
 `;
 
 
-const App = () => {
+const Search = () => {
     const [optionType, setOptionType] = useState('Search');
     const [book, setBook] = useState([]);
     const [query, setQuery] = useState('');
@@ -117,6 +117,11 @@ const App = () => {
         setBook(bookData.map(it => ({...it, isMyBook: false})));
     };
 
+
+    const queryChange = useCallback((e) => {
+        setQuery(e.target.value)
+    }, []);
+
     const base = axios.create({
         baseURL: "https://dapi.kakao.com",
         headers: {
@@ -124,13 +129,10 @@ const App = () => {
         }
     });
 
-    const queryChange = useCallback((e) => {
-        setQuery(e.target.value)
-    }, []);
-
     const bookSearch = (params) => {
         return base.get("/v3/search/book", {params})
             .then(it => it.data)
+            .then(it => it.documents)
     };
 
     const onClickSearchButton = async () => { // 비동기 처리
@@ -139,13 +141,12 @@ const App = () => {
             size: 10
         };
         const response = await bookSearch(params);
-        await updateBookList(response.documents);
+        await updateBookList(response);
     };
 
     const onClickBookList = (e) => {
         let index = book.findIndex(it => it.isbn === e.target.id);
         console.log(index);
-        // book[index].isMyBook = true;
         setMyBook(myBook.concat(book[index]));
         alert("추가되었습니다");
     };
@@ -164,7 +165,7 @@ const App = () => {
             </SelectDiv>
 
             {optionType === 'Search' ?
-                <Search>
+                <SearchDiv>
                     <SearchTab>
                         <SearchInput type="text" onChange={queryChange} value={query}
                                      placeholder="검색(제목, 저자, 출판사)"/>
@@ -173,22 +174,19 @@ const App = () => {
                     </SearchTab>
                     <SearchResult>
                         {(book.map((it, index) =>
-
                             <BookList key={index}>
                                 <Info thumbnail={it.thumbnail} title={it.title} author={it.authors}
                                       publisher={it.publisher}/>
                                 <AddButton id={it.isbn} onClick={onClickBookList}>add List</AddButton>
                             </BookList>))}
                     </SearchResult>
-                </Search>
+                </SearchDiv>
                 : <MyBookList myBook={myBook} action={onClickDeleteButton}/>}
 
-            {/*// : myBook.map(it => <MyBookList key={it.isbn} thumbnail={it.thumbnail} title={it.title}*/}
-            {/*//                              author={it.authors} contents={it.contents}/>)}*/}
         </Section>
 
     )
 };
 
 
-export default App;
+export default Search;
