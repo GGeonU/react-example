@@ -1,9 +1,9 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import styled from "styled-components";
 
 const ItemBox = styled.div`
     display: flex;
-    width: 75%;
+    width: 85%;
     height: 180px;
     margin-top: 15px;
     margin-right: auto;
@@ -14,13 +14,13 @@ const ItemBox = styled.div`
     padding: 20px;
     border-radius: 5px;
     color: #adaeb9;
+    background: white;
     box-shadow: 0 13px 27px -5px rgba(50, 50, 93, 0.25),
       0 8px 16px -8px rgba(0, 0, 0, 0.3), 0 -6px -16px -6px rgba(0,0,0, 0.025); 
 `;
 
 const Thumbnail = styled.img`
     position: relative;
-    top: -20px;
     width: 110px;
     margin-right: 30px;
     box-shadow: 0 30px 60px -12px rgba(50, 50, 93, 0.25),
@@ -49,16 +49,22 @@ const BookContents = styled.p`
     margin: 10px 0 0;
 `;
 
-const MyBookList = (props) => {
+const MyBookList = ({myBook, action}) => {
+    const [myBookItems, setMyBookItems] = useState([]);
 
-    let items = [];
-    items = items.concat(props);
-    console.log(items);
+    useEffect(() => {
+        setMyBookItems(myBook);
+        console.log(myBook)
+    }, [myBook]); // 시작 될 때만 렌더링
+
+    const onDeleteButtonClick = (e) => {
+        action(e.target.id); // id 받아 비교해 삭제
+    };
 
     return (
         <div>
-            {items.map(item =>
-                <ItemBox>
+            {myBookItems.map(item =>
+                <ItemBox key={item.isbn}>
                     <div>
                         <Thumbnail src={item.thumbnail} alt="Not Image"/>
                     </div>
@@ -68,7 +74,7 @@ const MyBookList = (props) => {
                         <BookContents>{item.contents} ...</BookContents>
                     </div>
                     <div>
-                        <button>delete</button>
+                        <button id={item.isbn} onClick={onDeleteButtonClick}>delete</button>
                     </div>
                 </ItemBox>)}
         </div>

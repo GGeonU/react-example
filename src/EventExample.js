@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react'
 
-const EventExample = () => {
+const EventExample = ({aaa, action}) => {
 
     const [form, setForm] = useState({
         username: '',
@@ -43,7 +43,7 @@ const EventExample = () => {
                    onKeyPress={onKeyPress}/>
             <input type="text" name="nickname" placeholder="별명" value={nickname} onChange={handleChange}
                    onKeyPress={onKeyPress}/>
-            <button onClick={handleClick}>alert</button>
+            <button onClick={action}>alert</button>
 
             <p>이름: {username}</p>
             <p>별명: {nickname}</p>

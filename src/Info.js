@@ -53,8 +53,9 @@ const BookContents = styled.p`
 const Info = (props) => {
     const {thumbnail, title, author, publisher} = props;
 
+
     return (
-        <ItemBox>
+        <ItemBox >
             <div>
                 <Thumbnail src={thumbnail} alt="Not Image"/>
             </div>

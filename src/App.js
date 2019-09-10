@@ -150,6 +150,10 @@ const App = () => {
         alert("추가되었습니다");
     };
 
+    const onClickDeleteButton = (id) => {
+        setMyBook(myBook.filter(item => item.isbn !== id)) // isbn === click한 object의 id 값 필터링
+    };
+
     return (
         <Section>
             <SelectDiv>
@@ -169,6 +173,7 @@ const App = () => {
                     </SearchTab>
                     <SearchResult>
                         {(book.map((it, index) =>
+
                             <BookList key={index}>
                                 <Info thumbnail={it.thumbnail} title={it.title} author={it.authors}
                                       publisher={it.publisher}/>
@@ -176,8 +181,10 @@ const App = () => {
                             </BookList>))}
                     </SearchResult>
                 </Search>
-                : myBook.map(it => <MyBookList key={it.isbn} thumbnail={it.thumbnail} title={it.title}
-                                             author={it.authors} contents={it.contents}/>)}
+                : <MyBookList myBook={myBook} action={onClickDeleteButton}/>}
+
+            {/*// : myBook.map(it => <MyBookList key={it.isbn} thumbnail={it.thumbnail} title={it.title}*/}
+            {/*//                              author={it.authors} contents={it.contents}/>)}*/}
         </Section>
 
     )
